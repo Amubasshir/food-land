@@ -1,19 +1,23 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
 
-const Navbar = () => {
+const Navbar = ({ searchQuery, setSearchQuery, searchHandler, inputField }) => {
   const navActive = ({ isActive }) => {
     return {
       color: isActive ? '#f97316' : null,
     };
   };
+
   return (
     <div className="navbar flex justify-between items-center container mx-auto py-7 flex-col lg:flex-row gap-5 lg:gap-0 ">
       <h2 className="logo text-2xl font-bold  italic">
         Food <span className="text-orange-500">Land</span>
       </h2>
-      <form className="search-bar">
+      <form className="search-bar" onSubmit={searchHandler}>
         <input
+          ref={inputField}
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
           type="search"
           placeholder="search your desire recipe..."
           required
@@ -38,7 +42,7 @@ const Navbar = () => {
             className="text-gray-500 hover:text-gray-700 duration-300"
           >
             Favourites{' '}
-            <span className="favourites-count font-bold text-[#ca08088a]">
+            <span className="favourites-count font-bold text-gray-400">
               (7)
             </span>
           </NavLink>
