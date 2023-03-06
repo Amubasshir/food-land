@@ -38,7 +38,7 @@ const Navbar = () => {
             className="text-gray-500 hover:text-gray-700 duration-300"
           >
             Favourites{' '}
-            <span className="favourites-count font-bold text-gray-400">
+            <span className="favourites-count font-bold text-[#ca08088a]">
               (7)
             </span>
           </NavLink>
