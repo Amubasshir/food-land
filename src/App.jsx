@@ -10,7 +10,7 @@ import NotFound from './components/NotFound';
 function App() {
   const [searchQuery, setSearchQuery] = useState('');
   const inputField = useRef(null);
-  const [recipes, setRecipes] = useState('');
+  const [recipes, setRecipes] = useState([]);
   const [loading, setLoading] = useState('false');
   const [error, setError] = useState('');
 
@@ -31,8 +31,8 @@ function App() {
       if (!res.ok)
         throw new Error('No recipe found, please search another one.');
       const data = await res.json();
-      // console.log(data);
       setRecipes(data.recipes);
+
       setLoading(false);
     } catch (err) {
       setError(err.message);
@@ -51,7 +51,7 @@ function App() {
         <Routes>
           <Route
             path="/"
-            element={<Home error={error} loading={loading} recipes={recipes} />}
+            element={<Home loading={loading} error={error} recipes={recipes} />}
           ></Route>
           <Route path="/favourites" element={<Favourites />}></Route>
           <Route path="*" element={<NotFound />}></Route>
