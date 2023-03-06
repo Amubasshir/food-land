@@ -11,7 +11,7 @@ function App() {
   const [searchQuery, setSearchQuery] = useState('');
   const inputField = useRef(null);
   const [recipes, setRecipes] = useState([]);
-  const [loading, setLoading] = useState('false');
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
   const searchHandler = (e) => {
@@ -20,6 +20,7 @@ function App() {
 
     setSearchQuery('');
     inputField.current.blur();
+    setRecipes([]);
   };
 
   const getData = async (searchQuery) => {
