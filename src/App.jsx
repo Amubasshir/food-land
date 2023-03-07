@@ -1,5 +1,5 @@
-import { useRef, useState } from 'react';
-import { Route, Routes } from 'react-router-dom';
+import { useEffect, useRef, useState } from 'react';
+import { Route, Routes, useNavigate } from 'react-router-dom';
 import './App.css';
 import Favourites from './components/Favourites';
 import Footer from './components/Footer';
@@ -14,6 +14,11 @@ function App() {
   const [recipes, setRecipes] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [savedItems, setSavedItems] = useState(() => {
+    const localData = localStorage.getItem('recipes');
+    return localData ? JSON.parse(localData) : [];
+  });
+  const navigate = useNavigate();
 
   const searchHandler = (e) => {
     e.preventDefault();
@@ -41,6 +46,29 @@ function App() {
     }
   };
 
+  const checkLocalData = (data) => {
+    const localData = JSON.parse(localStorage.getItem('recipes'));
+    const existedData = localData.some((item) => item.id === data.id);
+    if (!existedData) {
+      setSavedItems([...savedItems, data]);
+    } else {
+      const filteredData = localData.filter((item) => item.id !== data.id);
+      setSavedItems(filteredData);
+    }
+  };
+
+  const favouriteHandler = (id) => {
+    fetch(`https://forkify-api.herokuapp.com/api/v2/recipes/${id}`)
+      .then((res) => res.json())
+      .then((data) => checkLocalData(data.data.recipe));
+
+    navigate('/favourites');
+  };
+
+  useEffect(() => {
+    localStorage.setItem('recipes', JSON.stringify(savedItems));
+  }, [savedItems]);
+
   return (
     <>
       <div className="App min-h-screen bg-[url('https://images.unsplash.com/photo-1637325258040-d2f09636ecf6?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=435&q=80')] bg-no-repeat bg-cover text-gray-600 text-lg">
@@ -55,8 +83,14 @@ function App() {
             path="/"
             element={<Home loading={loading} error={error} recipes={recipes} />}
           ></Route>
-          <Route path="/favourites" element={<Favourites />}></Route>
-          <Route path="/recipe-item/:id" element={<RecipeItem />}></Route>
+          <Route
+            path="/favourites"
+            element={<Favourites savedItems={savedItems} />}
+          ></Route>
+          <Route
+            path="/recipe-item/:id"
+            element={<RecipeItem favouriteHandler={favouriteHandler} />}
+          ></Route>
           <Route path="*" element={<NotFound />}></Route>
         </Routes>
       </div>

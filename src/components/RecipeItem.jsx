@@ -1,8 +1,8 @@
 import React from 'react';
-import { useParams } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 import { useFetch } from '../hooks/useFetch';
 
-const RecipeItem = () => {
+const RecipeItem = ({ favouriteHandler }) => {
   const { id } = useParams();
   const { data: recipe, loading, error } = useFetch(id);
   const durationCalc = (duration) => {
@@ -28,6 +28,28 @@ const RecipeItem = () => {
               ? String(recipe?.cooking_time) + 'min'
               : durationCalc(recipe?.cooking_time / 60)}
           </div>
+        </div>
+        <div className="btns flex gap-5">
+          <button
+            onClick={() => favouriteHandler(recipe.id)}
+            className="bg-gradient-to-br from-orange-400 to-orange-600 text-sky-50 p-3 px-8 rounded-lg text-sm uppercase font-medium tracking-wide mt-2 inline-block shadow-md shadow-orange-200 hover:shadow-orange-300 duration-300"
+          >
+            + Save as favourite
+          </button>
+          <a
+            href={recipe?.source_url}
+            target="_blank"
+            rel="noreferrer"
+            className="bg-gradient-to-br from-orange-400 to bg-orange-600 text-white p-3 px-8 rounded-lg text-sm uppercase font-medium tracking-wide mt-2 inline-block shadow-md shadow-orange-200 hover:shadow-orange-300 duration-300"
+          >
+            Get Direction
+          </a>
+          <Link
+            to="/"
+            className="bg-gradient-to-br from-orange-400 to bg-orange-600 text-white p-3 px-8 rounded-lg text-sm uppercase font-medium tracking-wide mt-2 inline-block shadow-md shadow-orange-200 hover:shadow-orange-300 duration-300"
+          >
+            Back to home
+          </Link>
         </div>
       </div>
       <div className="right">
