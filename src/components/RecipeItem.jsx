@@ -1,8 +1,9 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { useFetch } from '../hooks/useFetch';
 
-const RecipeItem = ({ favouriteHandler }) => {
+const RecipeItem = ({ favouriteHandler, savedItems }) => {
+  const [itemSavedStatus, setItemSavedStatus] = useState(null);
   const { id } = useParams();
   const { data: recipe, loading, error } = useFetch(id);
   const durationCalc = (duration) => {
@@ -15,6 +16,11 @@ const RecipeItem = ({ favouriteHandler }) => {
       return String(duration).replace('.', 'h') + 'min';
     }
   };
+
+  useEffect(() => {
+    if (!recipe) return null;
+    setItemSavedStatus(savedItems.some((item) => item.id === recipe.id));
+  }, [recipe]);
 
   return (
     <div className="recipe-item-section container mx-auto py-20 grid grid-cols-1 lg:grid-cols-2 gap-10">
@@ -32,21 +38,25 @@ const RecipeItem = ({ favouriteHandler }) => {
         <div className="btns flex gap-5">
           <button
             onClick={() => favouriteHandler(recipe.id)}
-            className="bg-gradient-to-br from-orange-400 to-orange-600 text-sky-50 p-3 px-8 rounded-lg text-sm uppercase font-medium tracking-wide mt-2 inline-block shadow-md shadow-orange-200 hover:shadow-orange-300 duration-300"
+            className={`bg-gradient-to-br   p-3 px-8 rounded-lg text-sm uppercase font-medium tracking-wide mt-2 inline-block shadow-md duration-300 ${
+              itemSavedStatus
+                ? 'from-red-400 to-red-600 text-white shadow-md shadow-gray-200 hover:shadow-gray-300'
+                : ' from-blue-400 to-blue-600 text-sky-50 shadow-md shadow-gray-200 hover:shadow-gray-300'
+            }`}
           >
-            + Save as favourite
+            {itemSavedStatus ? 'remove from favourites' : 'save as favorites'}
           </button>
           <a
             href={recipe?.source_url}
             target="_blank"
             rel="noreferrer"
-            className="bg-gradient-to-br from-orange-400 to bg-orange-600 text-white p-3 px-8 rounded-lg text-sm uppercase font-medium tracking-wide mt-2 inline-block shadow-md shadow-orange-200 hover:shadow-orange-300 duration-300"
+            className="bg-gradient-to-br from-orange-400 to bg-orange-600 text-white p-3 px-8 rounded-lg text-sm uppercase font-medium tracking-wide mt-2 inline-block shadow-md shadow-gray-200 hover:shadow-gray-300 duration-300"
           >
             Get Direction
           </a>
           <Link
             to="/"
-            className="bg-gradient-to-br from-orange-400 to bg-orange-600 text-white p-3 px-8 rounded-lg text-sm uppercase font-medium tracking-wide mt-2 inline-block shadow-md shadow-orange-200 hover:shadow-orange-300 duration-300"
+            className="bg-gradient-to-br from-orange-400 to bg-orange-600 text-white p-3 px-8 rounded-lg text-sm uppercase font-medium tracking-wide mt-2 inline-block shadow-md shadow-gray-200 hover:shadow-gray-300 duration-300"
           >
             Back to home
           </Link>

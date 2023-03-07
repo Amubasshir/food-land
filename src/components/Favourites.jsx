@@ -4,8 +4,8 @@ import Recipe from './Recipe';
 const Favourites = ({ savedItems }) => {
   return (
     <div className="favourite-section">
-      {savedItems.length > 0 && (
-        <p>
+      {savedItems.length === 0 && (
+        <p className="text-2xl lg:text-4xl font-semibold text-red-600 text-center pt-10">
           Your current favourite list is empty. Please add some to favourite .
         </p>
       )}

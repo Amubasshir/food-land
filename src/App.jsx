@@ -73,6 +73,7 @@ function App() {
     <>
       <div className="App min-h-screen bg-[url('https://images.unsplash.com/photo-1637325258040-d2f09636ecf6?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=435&q=80')] bg-no-repeat bg-cover text-gray-600 text-lg">
         <Navbar
+          savedItems={savedItems}
           searchQuery={searchQuery}
           setSearchQuery={setSearchQuery}
           inputField={inputField}
@@ -89,7 +90,12 @@ function App() {
           ></Route>
           <Route
             path="/recipe-item/:id"
-            element={<RecipeItem favouriteHandler={favouriteHandler} />}
+            element={
+              <RecipeItem
+                favouriteHandler={favouriteHandler}
+                savedItems={savedItems}
+              />
+            }
           ></Route>
           <Route path="*" element={<NotFound />}></Route>
         </Routes>
