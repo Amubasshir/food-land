@@ -28,12 +28,12 @@ function App() {
     try {
       setLoading(true);
       const res = await fetch(
-        `https://forkify-api.herokuapp.com/api/search?q=${searchQuery}`
+        `https://forkify-api.herokuapp.com/api/v2/recipes?search=${searchQuery}`
       );
-      if (!res.ok)
-        throw new Error('No recipe found, please search another one.');
+      if (!res.ok) throw new Error('something went wrong...');
       const data = await res.json();
-      setRecipes(data.recipes);
+      if (data.results === 0) throw new Error('No recipe found');
+      setRecipes(data?.data?.recipes);
 
       setLoading(false);
     } catch (err) {
