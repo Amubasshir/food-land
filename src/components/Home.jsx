@@ -8,7 +8,7 @@ const Home = ({ recipes, loading, error }) => {
       {!loading && !error && recipes.length === 0 ? (
         <div>
           <p className="text-2xl lg:text-4xl font-bold text-red-500">
-            No results found, please search something else...
+            Search Something To Start
           </p>
           <Pan />
         </div>

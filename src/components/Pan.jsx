@@ -3,8 +3,8 @@ import Cooking from '../assets/cooking.gif';
 
 const Pan = () => {
   return (
-    <div className="pan container mx-auto w-1/2  ">
-      <img src={Cooking} alt={'A man flipping an frying pan'} />
+    <div className="container mx-auto   flex flex-col items-center  ">
+      <img className="" src={Cooking} alt={'A man flipping an frying pan'} />
     </div>
   );
 };
