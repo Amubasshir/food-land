@@ -1,85 +1,155 @@
-import React, { useEffect, useState } from 'react';
-import { Link, useParams } from 'react-router-dom';
-import { useFetch } from '../hooks/useFetch';
+import { useEffect, useState } from 'react';
+import { BsClock, BsPerson } from 'react-icons/bs';
+import { CgSpinner } from 'react-icons/cg';
+import { GiKnifeFork } from 'react-icons/gi';
+import { TiTick } from 'react-icons/ti';
+import { useNavigate, useParams } from 'react-router-dom';
 
-const RecipeItem = ({ favouriteHandler, savedItems }) => {
-  const [itemSavedStatus, setItemSavedStatus] = useState(null);
+const RecipeItem = ({ saveHandler, savedItems }) => {
+  const [recipe, setRecipe] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [errorMsg, setErrorMsg] = useState('');
+  const [hasBeenSaved, setHasBeenSaved] = useState(null);
+
   const { id } = useParams();
-  const { data: recipe, loading, error } = useFetch(id);
-  const durationCalc = (duration) => {
-    if (!duration) return 0;
-    if (!String(duration).includes('.')) {
-      return duration + 'h';
+
+  const navigator = useNavigate();
+
+  useEffect(() => {
+    setIsLoading(true);
+    setErrorMsg('');
+    setRecipe('');
+
+    setTimeout(() => {
+      fetch(`https://forkify-api.herokuapp.com/api/v2/recipes/${id}`)
+        .then((res) => {
+          if (!res.ok) throw new Error('Something went wrong!');
+          return res.json();
+        })
+        .then((data) => {
+          setRecipe(data.data.recipe);
+          setIsLoading(false);
+        })
+        .catch((err) => setErrorMsg(err.message));
+    }, 500);
+  }, []);
+
+  const timeFormatter = (time) => {
+    if (!time) return;
+
+    if (!String(time).includes('.')) {
+      return time + 'h';
     }
 
-    if (String(duration).includes('.')) {
-      return String(duration).replace('.', 'h') + 'min';
+    if (String(time).includes('.')) {
+      return String(time).replace('.', 'h') + 'min';
     }
   };
 
   useEffect(() => {
-    if (!recipe) return null;
-    setItemSavedStatus(savedItems.some((item) => item.id === recipe.id));
+    if (!recipe) return;
+    setHasBeenSaved(savedItems.some((item) => item.id === recipe.id));
   }, [recipe]);
 
   return (
-    <div className="recipe-item-section container mx-auto py-20 grid grid-cols-1 lg:grid-cols-2 gap-10">
-      <div className="left">
-        <span className="publisher">{recipe?.publisher}</span>
-        <h2 className="title">{recipe?.title}</h2>
-        <div className="servings-cooking-time">
-          <div className="servings">Serve for: {recipe?.servings} people</div>
-          <div className="cooking-time">
-            {recipe?.cooking_time < 60
-              ? String(recipe?.cooking_time) + 'min'
-              : durationCalc(recipe?.cooking_time / 60)}
+    <>
+      {isLoading && (
+        <p className="text-2xl container mx-auto py-8 text-center">
+          {errorMsg ? (
+            errorMsg
+          ) : (
+            <CgSpinner className="animate-spin text-center inline-block" />
+          )}
+        </p>
+      )}
+      {recipe && (
+        <div className="container mx-auto py-8 grid grid-cols-1 lg:grid-cols-2 gap-8 px-5 lg:px-0">
+          <div className="flex flex-col gap-5">
+            <div className="flex flex-col-reverse lg:flex-row items-start lg:items-center gap-5 lg:justify-between">
+              <p className="uppercase font-semibold tracking-wider text-violet-500">
+                {recipe.publisher}
+              </p>
+              <button
+                className={`p-3  px-8 rounded-full uppercase tracking-wider font-semibold duration-300 ${
+                  hasBeenSaved
+                    ? 'text-rose-500 bg-rose-200 hover:bg-rose-500 hover:text-rose-50'
+                    : 'text-sky-500 bg-sky-200 hover:bg-sky-500 hover:text-sky-50'
+                }`}
+                onClick={() => saveHandler(recipe.id)}
+              >
+                {hasBeenSaved
+                  ? '- Remove from favourites'
+                  : '+ Save as favourite'}
+              </button>
+            </div>
+            <h2 className="text-4xl lg:text-6xl capitalize">{recipe.title}</h2>
+            <div className="flex justify-between flex-col lg:flex-row gap-3">
+              <p className="uppercase font-semibold tracking-wider text-orange-500 flex items-center gap-2">
+                <BsPerson /> Servings <span>(People):</span>{' '}
+                <span>{recipe.servings}</span>
+              </p>
+              <p className="uppercase font-semibold tracking-wider text-orange-500 flex items-center gap-2">
+                {' '}
+                <BsClock />
+                Cooking Time:{' '}
+                <span>
+                  {recipe.cooking_time < 60
+                    ? String(recipe.cooking_time) + 'min'
+                    : timeFormatter(recipe.cooking_time / 60)}
+                </span>
+              </p>
+            </div>
+            <div className="flex gap-5 flex-col-reverse  items-start lg:flex-row">
+              <button
+                onClick={() => navigator(-1)}
+                className="bg-rose-500 text-rose-50 p-3 px-8 rounded-full uppercase shadow-lg shadow-rose-200 hover:bg-gray-600 hover:text-gray-50 hover:shadow-gray-300 duration-300"
+              >
+                Go Back
+              </button>
+              <a
+                href={recipe.source_url}
+                target="_blank"
+                className="bg-sky-400 text-sky-50 p-3 px-8 rounded-full uppercase shadow-lg shadow-sky-200 hover:bg-gray-600 hover:text-gray-50 hover:shadow-gray-300 duration-300"
+              >
+                Get Directions
+              </a>
+            </div>
+          </div>
+          <div className="overflow-hidden flex justify-center items-center lg:h-96 rounded-xl">
+            <img
+              src={recipe.image_url}
+              alt={recipe.title}
+              className="w-full block rounded-xl hover:scale-105 duration-300"
+            />
+          </div>
+          <div className="col-span-full">
+            <h2 className="text-2xl lg:text-4xl flex items-center gap-3 font-medium mb-5">
+              <span className="text-rose-500">
+                <GiKnifeFork />
+              </span>{' '}
+              Ingredients:
+            </h2>
+            <hr className="border-rose-100" />
+            <div className="mt-5">
+              {recipe.ingredients &&
+                recipe.ingredients.map((ing) => (
+                  <p
+                    className="leading-loose"
+                    key={Math.floor(Math.random() * 100000000)}
+                  >
+                    <TiTick className="inline-block" />
+                    <span>
+                      {ing.quantity && ing.quantity}
+                      {ing.unit && ing.unit}{' '}
+                      {ing.description && ing.description}
+                    </span>{' '}
+                  </p>
+                ))}
+            </div>
           </div>
         </div>
-        <div className="btns flex gap-5">
-          <button
-            onClick={() => favouriteHandler(recipe.id)}
-            className={`bg-gradient-to-br   p-3 px-8 rounded-lg text-sm uppercase font-medium tracking-wide mt-2 inline-block shadow-md duration-300 ${
-              itemSavedStatus
-                ? 'from-red-400 to-red-600 text-white shadow-md shadow-gray-200 hover:shadow-gray-300'
-                : ' from-blue-400 to-blue-600 text-sky-50 shadow-md shadow-gray-200 hover:shadow-gray-300'
-            }`}
-          >
-            {itemSavedStatus ? 'remove from favourites' : 'save as favorites'}
-          </button>
-          <a
-            href={recipe?.source_url}
-            target="_blank"
-            rel="noreferrer"
-            className="bg-gradient-to-br from-orange-400 to bg-orange-600 text-white p-3 px-8 rounded-lg text-sm uppercase font-medium tracking-wide mt-2 inline-block shadow-md shadow-gray-200 hover:shadow-gray-300 duration-300"
-          >
-            Get Direction
-          </a>
-          <Link
-            to="/"
-            className="bg-gradient-to-br from-orange-400 to bg-orange-600 text-white p-3 px-8 rounded-lg text-sm uppercase font-medium tracking-wide mt-2 inline-block shadow-md shadow-gray-200 hover:shadow-gray-300 duration-300"
-          >
-            Back to home
-          </Link>
-        </div>
-      </div>
-      <div className="right">
-        <div className="img">
-          <img src={recipe?.image_url} alt={recipe?.title} />
-        </div>
-        <div className="ingredient">
-          <span className="ingredient-title">Ingredients</span>
-          <ul>
-            {recipe?.ingredients?.map((ing, i) => (
-              <li key={i}>
-                ▶ {ing.quantity}
-                {ing.unit}
-                {ing.description}
-              </li>
-            ))}
-          </ul>
-        </div>
-      </div>
-    </div>
+      )}
+    </>
   );
 };
 

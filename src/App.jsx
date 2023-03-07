@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { Route, Routes, useNavigate } from 'react-router-dom';
-import './App.css';
+
 import Favourites from './components/Favourites';
 import Footer from './components/Footer';
 import Home from './components/Home';
@@ -22,11 +22,14 @@ function App() {
 
   const searchHandler = (e) => {
     e.preventDefault();
+
     getData(searchQuery);
 
     setSearchQuery('');
     inputField.current.blur();
     setRecipes([]);
+    setError('');
+    navigate('/');
   };
 
   const getData = async (searchQuery) => {
@@ -37,7 +40,7 @@ function App() {
       );
       if (!res.ok) throw new Error('something went wrong...');
       const data = await res.json();
-      if (data.results === 0) throw new Error('No recipe found');
+      if (data.results === 0) throw new Error(' No recipe found');
       setRecipes(data?.data?.recipes);
 
       setLoading(false);
